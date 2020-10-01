@@ -1,5 +1,3 @@
-import urllib.parse
-import time
 import json
 
 from basic_http.cookies.cookies import SessionCookiesKeeper
@@ -41,8 +39,8 @@ class HttpSession(object):
         if 'follow_redirects' in kwargs:
             self.follow_redirects = kwargs['follow_redirects']
 
-        if 'cookies_enabld' in kwargs:
-            self.cookies_enabled = kwargs['cookie_enabled']
+        if 'cookies_enabled' in kwargs:
+            self.cookies_enabled = kwargs['cookies_enabled']
 
     def __prepare_http_request(self, method, path, header, body, **kwargs):
         request = HttpRequest()
@@ -89,7 +87,7 @@ class HttpSession(object):
     def to_dict(self):
         details = dict(self.connection.to_dict())
         details.update({
-            'cookie_enabled': self.cookies_enabled,
+            'cookies_enabled': self.cookies_enabled,
             'cookies': self.get_cookies()
         })
         return details
@@ -139,7 +137,7 @@ class HttpSession(object):
 
         response = HttpResponse()
         response.receive(self.connection)
-        # print(response)
+
         self.__get_cookies_from_response(response, url)
 
         if response.status_code() in range(300, 400) and self.follow_redirects:
@@ -147,7 +145,8 @@ class HttpSession(object):
             self.request(method, location, header, raw_body, **kwargs)
 
         self.__requests_chain.insert(0, (request, response))
-        return response
+
+        return self.__requests_chain[-1][1]
 
     def close(self):
         self.connection.close()
@@ -156,5 +155,4 @@ class HttpSession(object):
         return self.connection.is_busy()
 
     def get_requests_chain(self):
-        # self.__requests_chain.reverse()
         return self.__requests_chain

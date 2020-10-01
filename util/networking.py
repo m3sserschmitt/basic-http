@@ -109,7 +109,6 @@ class HttpSocketReader:
 
             partial_parsed_data['body'] += data
             partial_body_lenth += len(data)
-            # print('content-lenght:', partial_body_lenth)
 
             if (chunked and data[-5:] == b'0\r\n\r\n') or (content_length and content_length <= partial_body_lenth):
                 break
